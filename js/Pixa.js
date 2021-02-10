@@ -1,16 +1,16 @@
 "use strict";
 import Board from "./Board.js";
-import { getColors } from "./functions.js";
+import { gameActions } from "./functions.js";
 import Game from "./Main.js";
 
-
 export class Piece {
-  constructor(id, position_y, position_x, color, position) {
+  constructor(id, position_y, position_x, color, position, virusNumber = null) {
     this.id = id;
     this.position_y = position_y;
     this.position_x = position_x;
     this.color = color;
     this.position = position;
+    this.variusNumber = virusNumber;
   }
 }
 
@@ -22,9 +22,9 @@ export class Pixa {
     this.firstColor = colors[0];
     this.secondColor = colors[1];
     this.position = position;
-    this.first_piece_y = 1;
+    this.first_piece_y = 0;
     this.first_piece_x = 3;
-    this.second_piece_y = 1;
+    this.second_piece_y = 0;
     this.second_piece_x = 4;
   }
   move(place) {
@@ -70,7 +70,12 @@ export class Pixa {
   }
 
   descent(turnedByClick) {
-    if (Board.table[this.second_piece_y + 1][this.second_piece_x] == !" " && Board.table[this.first_piece_y + 1][this.first_piece_x] == !" " && this.first_piece_y < Board.table.length - 2 && this.second_piece_y < Board.table.length - 2) {
+    if (
+      Board.table[this.second_piece_y + 1][this.second_piece_x] == !" " &&
+      Board.table[this.first_piece_y + 1][this.first_piece_x] == !" " &&
+      this.first_piece_y < Board.table.length - 2 &&
+      this.second_piece_y < Board.table.length - 2
+    ) {
       Board.pixaClear(this);
       //Opdadanie tak zwane
       this.first_piece_y++;
@@ -83,17 +88,22 @@ export class Pixa {
       //Wstawiam pixe na planszy
       Board.pixaInsert(this);
     } else {
-      //Towrze sobie nowe obiekty klasy piece, aby wrzycić je do tabeli odzwierciedlającej plansze gry
-      const first_piece = new Piece(this.id, this.first_piece_y, this.first_piece_x, this.firstColor, this.position);
-      const second_piece = new Piece(this.id, this.second_piece_y, this.second_piece_x, this.secondColor, this.position);
-      Board.pixaPush(first_piece, second_piece);
+      if (this.second_piece_y === 0 && this.first_piece_y === 0) {
+        console.log("Przegrałeś");
+        clearInterval(Game.fall_interval);
+        document.removeEventListener("keydown", gameActions);
+        localStorage.setItem(localStorage.length, Game.points);
+      } else {
+        //Towrze sobie nowe obiekty klasy piece, aby wrzycić je do tabeli odzwierciedlającej plansze gry
+        const first_piece = new Piece(this.id, this.first_piece_y, this.first_piece_x, this.firstColor, this.position);
+        const second_piece = new Piece(this.id, this.second_piece_y, this.second_piece_x, this.secondColor, this.position);
+        Board.pixaPush(first_piece, second_piece);
 
-      Board.pixaInsert(this);
-      Game.kill([first_piece, second_piece]);
+        Board.pixaInsert(this);
+        Game.kill([first_piece, second_piece]);
 
-      Game.checkingFalling();
+        Game.checkingFalling();
+      }
     }
   }
 }
-
-

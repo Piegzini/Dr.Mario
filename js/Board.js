@@ -1,10 +1,12 @@
 "use strict";
 
+import { getViruses } from "./functions.js";
+
 export default class Board {
   static table = [];
   static elements;
-
-  static setBoard() {
+  static viruses = []
+  setBoard() {
     this.board = document.getElementById("board");
 
     for (let i = 0; i < 16; i++) {
@@ -21,13 +23,18 @@ export default class Board {
     }
 
     for (let i = 0; i <= 16; i++) {
-      this.table.push([]);
-      for (let a = 0; a < 8; a++){
-        this.table[i].push(" ");
-      } 
+      Board.table.push([]);
+      for (let a = 0; a < 8; a++) {
+        Board.table[i].push(" ");
+      }
     }
+    const viruses = getViruses(3)
+    Board.viruses.push(...viruses)
+    Board.elements = document.querySelectorAll(".element");
 
-    this.elements = document.querySelectorAll(".element");
+    viruses.forEach(virus => {
+      Board.pieceInsertPush(virus)
+    })
   }
 
   // Tutaj są wszystkie akcje związane z planszą, tabelą i pixą, czyli rysowanie, czyszczenie planszy oraz umiejscowienie w tabeli logicznej

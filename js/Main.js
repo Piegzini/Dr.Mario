@@ -1,22 +1,28 @@
 "use strict";
 import { Pixa, Piece } from "./Pixa.js";
 import Board from "./Board.js";
-import { getColors, gameActions, getSecondPiece } from "./functions.js";
+import { getColors, gameActions, getSecondPiece, getViruses } from "./functions.js";
 export default class Game {
   static fall_interval;
-  constructor() {}
+  static allGames = [];
+  static points = 0;
+  constructor() {
+    this.Board = new Board();
+    Game.allGames.push(this);
+  }
 
   startGame() {
-    Board.setBoard();
+    this.Board.setBoard();
+
     const pixa = new Pixa(Pixa.allPixes.length, getColors());
     Board.pixaInsert(pixa);
     Pixa.allPixes.push(pixa);
-
     document.addEventListener("keydown", gameActions);
 
-    Game.fall_interval = setInterval(() => pixa.descent(), 400);
+    setTimeout(() => {
+      Game.fall_interval = setInterval(() => pixa.descent(), 400);
+    }, 400);
   }
-
   static getMatchingToKillElements(piece) {
     let possibilities = [
       [0, 1],
@@ -58,8 +64,8 @@ export default class Game {
     results.forEach((part) => {
       for (let attr in part) {
         if (part[attr].length >= 4 && attr !== "color") {
-            isKill = true;    
-            break
+          isKill = true;
+          break;
         }
       }
     });
@@ -76,6 +82,11 @@ export default class Game {
       for (let attr in part) {
         if (part[attr].length >= 4 && attr !== "color") {
           part[attr].forEach((piece) => {
+            if (piece.id === "virus" && Board.viruses.includes(piece)) {
+              const index = Board.viruses.findIndex((element) => element === piece);
+              Board.viruses.splice(index, 1);
+              Game.points += 100;
+            }
             Board.elements[piece.position_y * 8 + piece.position_x].style.backgroundColor = "white";
             Board.table[piece.position_y][piece.position_x] = " ";
           });
@@ -93,7 +104,7 @@ export default class Game {
       let alreadyUsedIdes = [];
       for (let i = 15; i >= 0; i--) {
         const row = Board.table[i];
-        let pieces = row.filter((element) => (element instanceof Piece ? element : null));
+        let pieces = row.filter((element) => (element instanceof Piece && element?.id !== "virus" ? element : null));
         pieces.forEach((first_piece) => {
           const second_piece = getSecondPiece(first_piece, alreadyUsedIdes);
           if (typeof second_piece === "object") {
@@ -130,14 +141,21 @@ export default class Game {
           Game.kill(allMovedPieces);
           Game.checkingFalling();
         } else {
-          const pixa = new Pixa(Pixa.allPixes.length, getColors());
-          Board.pixaInsert(pixa);
+          if (Board.viruses.length === 0) {
+            localStorage.setItem(localStorage.length, Game.points);
+            clearInterval(Game.fall_interval);
+            document.removeEventListener("keydown", gameActions);
+            console.log("Wygrałeś koniec gry");
+          } else {
+            const pixa = new Pixa(Pixa.allPixes.length, getColors());
+            Board.pixaInsert(pixa);
 
-          document.addEventListener("keydown", gameActions);
+            document.addEventListener("keydown", gameActions);
 
-          Pixa.allPixes.push(pixa);
-          clearInterval(Game.fall_interval);
-          Game.fall_interval = setInterval(() => pixa.descent(), 400);
+            Pixa.allPixes.push(pixa);
+            clearInterval(Game.fall_interval);
+            Game.fall_interval = setInterval(() => pixa.descent(), 400);
+          }
         }
       }
     }, 100);

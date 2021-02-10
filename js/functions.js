@@ -1,8 +1,9 @@
 import { Pixa, Piece } from "./Pixa.js";
 import Board from "./Board.js";
 
+const colors = ["yellow", "#346173", "blue"];
+
 export const getColors = () => {
-  const colors = ["yellow", "#346173", "blue"];
   const drawn = [colors[Math.floor(Math.random() * colors.length)], colors[Math.floor(Math.random() * colors.length)]];
   return drawn;
 };
@@ -11,15 +12,10 @@ export const getSecondPiece = (first_piece, alreadyUsedIdes) => {
   //Pobieram sobie id części do której szukam pary
   const id = first_piece.id;
   //Towrzę sobie zmienną która będzie przechowywała znalezioną parę
-  let second_piece = "single"
+  let second_piece = "single";
 
   Board.table.forEach((row) => {
     row.forEach((element) => {
-      // Po kolei tłumacze warunki jaki musi spełniać element, aby być drugą częścią:
-      // 1. Musi należeć do instacji Piece, czyli musi być obiektem z klasy Piece,
-      // 2. Musi być to inny element od pierwszej części tabletki ( używam tutaj JSON.stringify żeby móc z latwością porównać obiekty),
-      // 3. Id musi mieć takie samo jak pierwsza część,
-      // 4. Id nie może znajdować się na liście już użytych identyfikatorów
       if (element instanceof Piece && element?.id === id && JSON.stringify(element) !== JSON.stringify(first_piece)) {
         if (!alreadyUsedIdes.includes(element?.id)) second_piece = element;
         else second_piece = "Aready moved";
@@ -27,6 +23,24 @@ export const getSecondPiece = (first_piece, alreadyUsedIdes) => {
     });
   });
   return second_piece;
+};
+
+export const getViruses = (countOfViruses) => {
+  const viruses = [];
+  let alreadyUsedPositions = [];
+
+  const roll = (i) => {
+    const positions = { Y: Math.floor(Math.random() * 7) + 5, X: Math.floor(Math.random() * 8) };
+    if (alreadyUsedPositions.includes(JSON.stringify(positions))) roll(i);
+    else {
+      viruses.push(new Piece("virus", positions.Y, positions.X, colors[i % 3], "horizontal", i));
+      alreadyUsedPositions.push(JSON.stringify(positions));
+    }
+  };
+  for (let i = 0; i < countOfViruses; i++) {
+    roll(i);
+  }
+  return viruses;
 };
 
 export const gameActions = (e) => {
