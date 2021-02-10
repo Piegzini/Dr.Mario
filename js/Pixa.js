@@ -70,7 +70,7 @@ export class Pixa {
   }
 
   descent(turnedByClick) {
-    if (Board.table[this.second_piece_y + 1][this.second_piece_x] == !" " && Board.table[this.first_piece_y + 1][this.first_piece_x] == !" " && this.first_piece_y < 15 && this.second_piece_y < 15) {
+    if (Board.table[this.second_piece_y + 1][this.second_piece_x] == !" " && Board.table[this.first_piece_y + 1][this.first_piece_x] == !" " && this.first_piece_y < Board.table.length - 2 && this.second_piece_y < Board.table.length - 2) {
       Board.pixaClear(this);
       //Opdadanie tak zwane
       this.first_piece_y++;

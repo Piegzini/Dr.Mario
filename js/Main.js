@@ -4,14 +4,10 @@ import Board from "./Board.js";
 import { getColors, gameActions, getSecondPiece } from "./functions.js";
 export default class Game {
   static fall_interval;
-  static involuntary_fall_interval;
-  constructor() {
-   
-  }
+  constructor() {}
 
   startGame() {
     Board.setBoard();
-
     const pixa = new Pixa(Pixa.allPixes.length, getColors());
     Board.pixaInsert(pixa);
     Pixa.allPixes.push(pixa);
@@ -62,9 +58,8 @@ export default class Game {
     results.forEach((part) => {
       for (let attr in part) {
         if (part[attr].length >= 4 && attr !== "color") {
-          part[attr].forEach((piece) => {
-            isKill = true;
-          });
+            isKill = true;    
+            break
         }
       }
     });
@@ -93,7 +88,7 @@ export default class Game {
     clearInterval(Game.fall_interval);
     document.removeEventListener("keydown", gameActions);
     let allMovedPieces = [];
-    Game.involuntary_fall_interval = setInterval(() => {
+    Game.fall_interval = setInterval(() => {
       let piecesToFallNow = [];
       let alreadyUsedIdes = [];
       for (let i = 15; i >= 0; i--) {
@@ -102,19 +97,19 @@ export default class Game {
         pieces.forEach((first_piece) => {
           const second_piece = getSecondPiece(first_piece, alreadyUsedIdes);
           if (typeof second_piece === "object") {
-            if (first_piece.position === "horizontal" && first_piece.position_y + 1 !== 16 && second_piece.position_y + 1 !== 16) {
+            if (first_piece.position === "horizontal" && first_piece.position_y + 1 !== Board.table.length - 1 && second_piece.position_y + 1 !== Board.table.length - 1) {
               if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " " && Board.table[second_piece.position_y + 1][second_piece.position_x] === " ") {
                 piecesToFallNow.push(first_piece, second_piece);
                 alreadyUsedIdes.push(first_piece.id);
               }
-            } else if (first_piece.position === "vertical" && first_piece.position_y + 1 !== 16) {
+            } else if (first_piece.position === "vertical" && first_piece.position_y + 1 !== Board.table.length - 1) {
               if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " ") {
                 piecesToFallNow.push(first_piece, second_piece);
                 alreadyUsedIdes.push(first_piece.id);
               }
             }
           } else if (second_piece === "single") {
-            if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " " && first_piece.position_y + 1 !== 16) {
+            if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " " && first_piece.position_y + 1 !== Board.table.length - 1) {
               piecesToFallNow.push(first_piece);
               alreadyUsedIdes.push(first_piece.id);
             }
@@ -130,12 +125,11 @@ export default class Game {
       });
 
       if (piecesToFallNow.length === 0) {
-        clearInterval(Game.involuntary_fall_interval);
+        clearInterval(Game.fall_interval);
         if (Game.isKill(allMovedPieces)) {
-          Game.kill(allMovedPieces)
-          Game.checkingFalling()
-        }
-        else {
+          Game.kill(allMovedPieces);
+          Game.checkingFalling();
+        } else {
           const pixa = new Pixa(Pixa.allPixes.length, getColors());
           Board.pixaInsert(pixa);
 
