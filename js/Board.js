@@ -31,26 +31,26 @@ export default class Board {
   }
 
   // Tutaj są wszystkie akcje związane z planszą, tabelą i pixą, czyli rysowanie, czyszczenie planszy oraz umiejscowienie w tabeli logicznej
-  static clearBoard(pixa) {
+  static pixaClear(pixa) {
     this.elements[pixa.first_piece_y * 8 + pixa.first_piece_x].style.backgroundColor = "white";
     this.elements[pixa.second_piece_y * 8 + pixa.second_piece_x].style.backgroundColor = "white";
   }
 
-  static insertOnBoard(pixa) {
+  static pixaInsert(pixa) {
     this.elements[pixa.first_piece_y * 8 + pixa.first_piece_x].style.backgroundColor = pixa.firstColor;
     this.elements[pixa.second_piece_y * 8 + pixa.second_piece_x].style.backgroundColor = pixa.secondColor;
   }
-  static insertInTable(first_piece, second_piece) {
+  static pixaPush(first_piece, second_piece) {
     this.table[first_piece.position_y][first_piece.position_x] = first_piece;
     this.table[second_piece.position_y][second_piece.position_x] = second_piece;
   }
 
-  static clearPiece(piece) {
+  static pieceClear(piece) {
     this.elements[piece.position_y * 8 + piece.position_x].style.backgroundColor = "white";
     this.table[piece.position_y][piece.position_x] = " ";
   }
 
-  static fallPiece(piece) {
+  static pieceInsertPush(piece) {
     this.elements[piece.position_y * 8 + piece.position_x].style.backgroundColor = piece.color;
     this.table[piece.position_y][piece.position_x] = piece;
   }

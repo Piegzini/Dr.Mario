@@ -6,12 +6,14 @@ export default class Game {
   static fall_interval;
   static involuntary_fall_interval;
   constructor() {
-    Board.setBoard();
+   
   }
 
   startGame() {
+    Board.setBoard();
+
     const pixa = new Pixa(Pixa.allPixes.length, getColors());
-    Board.insertOnBoard(pixa);
+    Board.pixaInsert(pixa);
     Pixa.allPixes.push(pixa);
 
     document.addEventListener("keydown", gameActions);
@@ -19,7 +21,7 @@ export default class Game {
     Game.fall_interval = setInterval(() => pixa.descent(), 400);
   }
 
-  static kiling(piece) {
+  static getMatchingToKillElements(piece) {
     let possibilities = [
       [0, 1],
       [1, 0],
@@ -50,8 +52,30 @@ export default class Game {
     };
   }
 
-  static resultOfKiling(first_piece, second_piece) {
-    const results = [Game.kiling(first_piece), Game.kiling(second_piece)];
+  static isKill(pieces) {
+    const results = [];
+    let isKill = false;
+    pieces.forEach((piece) => {
+      results.push(Game.getMatchingToKillElements(piece));
+    });
+
+    results.forEach((part) => {
+      for (let attr in part) {
+        if (part[attr].length >= 4 && attr !== "color") {
+          part[attr].forEach((piece) => {
+            isKill = true;
+          });
+        }
+      }
+    });
+    return isKill;
+  }
+
+  static kill(pieces) {
+    const results = [];
+    pieces.forEach((piece) => {
+      results.push(Game.getMatchingToKillElements(piece));
+    });
 
     results.forEach((part) => {
       for (let attr in part) {
@@ -64,65 +88,65 @@ export default class Game {
       }
     });
   }
-
   static checkingFalling() {
     //Zatrzymuje tworzenie nowych tabletek i na wszelki wyłączam gameActions
     clearInterval(Game.fall_interval);
     document.removeEventListener("keydown", gameActions);
-    
-    let countPiecesToFall = 0;
+    let allMovedPieces = [];
     Game.involuntary_fall_interval = setInterval(() => {
-      let piecesToFall = [];
+      let piecesToFallNow = [];
       let alreadyUsedIdes = [];
       for (let i = 15; i >= 0; i--) {
         const row = Board.table[i];
         let pieces = row.filter((element) => (element instanceof Piece ? element : null));
         pieces.forEach((first_piece) => {
           const second_piece = getSecondPiece(first_piece, alreadyUsedIdes);
-          if (typeof(second_piece) === "object") {
+          if (typeof second_piece === "object") {
             if (first_piece.position === "horizontal" && first_piece.position_y + 1 !== 16 && second_piece.position_y + 1 !== 16) {
               if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " " && Board.table[second_piece.position_y + 1][second_piece.position_x] === " ") {
-                console.log("Spada podwójny połóżony");
-                piecesToFall.push(first_piece, second_piece);
+                piecesToFallNow.push(first_piece, second_piece);
                 alreadyUsedIdes.push(first_piece.id);
               }
             } else if (first_piece.position === "vertical" && first_piece.position_y + 1 !== 16) {
               if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " ") {
-                console.log("Spada podwójny pionowy");
-                piecesToFall.push(first_piece, second_piece);
+                piecesToFallNow.push(first_piece, second_piece);
                 alreadyUsedIdes.push(first_piece.id);
               }
             }
-          } else if(second_piece === 'single') {
+          } else if (second_piece === "single") {
             if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " " && first_piece.position_y + 1 !== 16) {
-              console.log("Spada pojedyńczy");
-              piecesToFall.push(first_piece);
+              piecesToFallNow.push(first_piece);
               alreadyUsedIdes.push(first_piece.id);
             }
           }
         });
       }
 
-      piecesToFall.forEach((piece) => {
-        Board.clearPiece(piece);
+      piecesToFallNow.forEach((piece) => {
+        Board.pieceClear(piece);
         piece.position_y++;
-        Board.fallPiece(piece);
+        !allMovedPieces.includes(piece) ? allMovedPieces.push(piece) : null;
+        Board.pieceInsertPush(piece);
       });
 
-      countPiecesToFall = piecesToFall.length;
-      if (countPiecesToFall === 0) {
+      if (piecesToFallNow.length === 0) {
         clearInterval(Game.involuntary_fall_interval);
+        if (Game.isKill(allMovedPieces)) {
+          Game.kill(allMovedPieces)
+          Game.checkingFalling()
+        }
+        else {
+          const pixa = new Pixa(Pixa.allPixes.length, getColors());
+          Board.pixaInsert(pixa);
 
-        const pixa = new Pixa(Pixa.allPixes.length, getColors());
-        Board.insertOnBoard(pixa);
-        
-        document.addEventListener("keydown", gameActions);
-        
-        Pixa.allPixes.push(pixa);
-        clearInterval(Game.fall_interval);
-        Game.fall_interval = setInterval(() => pixa.descent(), 400);
+          document.addEventListener("keydown", gameActions);
+
+          Pixa.allPixes.push(pixa);
+          clearInterval(Game.fall_interval);
+          Game.fall_interval = setInterval(() => pixa.descent(), 400);
+        }
       }
-    }, 1000);
+    }, 100);
   }
 }
 

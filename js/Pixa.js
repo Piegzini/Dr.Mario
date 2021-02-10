@@ -3,6 +3,17 @@ import Board from "./Board.js";
 import { getColors } from "./functions.js";
 import Game from "./Main.js";
 
+
+export class Piece {
+  constructor(id, position_y, position_x, color, position) {
+    this.id = id;
+    this.position_y = position_y;
+    this.position_x = position_x;
+    this.color = color;
+    this.position = position;
+  }
+}
+
 export class Pixa {
   static allPixes = [];
 
@@ -17,10 +28,10 @@ export class Pixa {
     this.second_piece_x = 4;
   }
   move(place) {
-    Board.clearBoard(this);
+    Board.pixaClear(this);
     this.first_piece_x += place;
     this.second_piece_x += place;
-    Board.insertOnBoard(this);
+    Board.pixaInsert(this);
   }
   moveRight() {
     if (this.first_piece_x < 7 && this.second_piece_x < 7 && Board.table[this.second_piece_y][this.second_piece_x + 1] === " " && Board.table[this.first_piece_y][this.first_piece_x + 1] == " ")
@@ -31,7 +42,7 @@ export class Pixa {
       this.move(-1);
   }
   rotation(direction) {
-    Board.clearBoard(this);
+    Board.pixaClear(this);
     if (this.position === "horizontal" && Board.table[this.first_piece_y - 1][this.first_piece_x] === " ") {
       this.second_piece_x = this.first_piece_x;
       this.second_piece_y = this.first_piece_y - 1;
@@ -55,42 +66,34 @@ export class Pixa {
 
       this.position = "horizontal";
     }
-    Board.insertOnBoard(this);
+    Board.pixaInsert(this);
   }
 
-  descent(clicked) {
+  descent(turnedByClick) {
     if (Board.table[this.second_piece_y + 1][this.second_piece_x] == !" " && Board.table[this.first_piece_y + 1][this.first_piece_x] == !" " && this.first_piece_y < 15 && this.second_piece_y < 15) {
-      Board.clearBoard(this);
+      Board.pixaClear(this);
       //Opdadanie tak zwane
       this.first_piece_y++;
       this.second_piece_y++;
       //Jeśli jest spadanie jest wywołane poprzez kliknięcie, to zmieniam interwał na szybszy { tak ma być \^_^/ }
-      if (clicked) {
+      if (turnedByClick) {
         clearInterval(Game.fall_interval);
         Game.fall_interval = setInterval(() => this.descent(), 20);
       }
       //Wstawiam pixe na planszy
-      Board.insertOnBoard(this);
+      Board.pixaInsert(this);
     } else {
       //Towrze sobie nowe obiekty klasy piece, aby wrzycić je do tabeli odzwierciedlającej plansze gry
       const first_piece = new Piece(this.id, this.first_piece_y, this.first_piece_x, this.firstColor, this.position);
       const second_piece = new Piece(this.id, this.second_piece_y, this.second_piece_x, this.secondColor, this.position);
-      Board.insertInTable(first_piece, second_piece);
+      Board.pixaPush(first_piece, second_piece);
 
-      Board.insertOnBoard(this);
-      Game.resultOfKiling(first_piece, second_piece);
+      Board.pixaInsert(this);
+      Game.kill([first_piece, second_piece]);
 
       Game.checkingFalling();
     }
   }
 }
 
-export class Piece {
-  constructor(id, position_y, position_x, color, position) {
-    this.id = id;
-    this.position_y = position_y;
-    this.position_x = position_x;
-    this.color = color;
-    this.position = position;
-  }
-}
+
