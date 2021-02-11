@@ -43,7 +43,9 @@ export class Pixa {
   }
   rotation(direction) {
     Board.pixaClear(this);
-    if (this.position === "horizontal" && Board.table[this.first_piece_y - 1][this.first_piece_x] === " ") {
+    if (this.position === "horizontal" && this.first_piece_y === 0 && this.second_piece_y == 0) {
+      console.log("nic");
+    } else if (this.position === "horizontal" && Board.table[this.first_piece_y - 1][this.first_piece_x] === " ") {
       this.second_piece_x = this.first_piece_x;
       this.second_piece_y = this.first_piece_y - 1;
 
@@ -66,6 +68,7 @@ export class Pixa {
 
       this.position = "horizontal";
     }
+
     Board.pixaInsert(this);
   }
 
@@ -82,6 +85,7 @@ export class Pixa {
       this.second_piece_y++;
       //Jeśli jest spadanie jest wywołane poprzez kliknięcie, to zmieniam interwał na szybszy { tak ma być \^_^/ }
       if (turnedByClick) {
+        document.removeEventListener("keydown", gameActions);
         clearInterval(Game.fall_interval);
         Game.fall_interval = setInterval(() => this.descent(), 20);
       }
@@ -100,9 +104,13 @@ export class Pixa {
         Board.pixaPush(first_piece, second_piece);
 
         Board.pixaInsert(this);
-        Game.kill([first_piece, second_piece]);
 
-        Game.checkingFalling();
+        if (Game.isKill([first_piece, second_piece])) {
+          Game.kill([first_piece, second_piece], Game.checkingFalling);
+          // setTimeout(Game.checkingFalling, 500);
+        } else {
+          Game.checkingFalling();
+        }
       }
     }
   }

@@ -1,7 +1,7 @@
 import { Pixa, Piece } from "./Pixa.js";
 import Board from "./Board.js";
 
-const colors = ["yellow", "#346173", "blue"];
+const colors = ["yl", "bl", "br"];
 
 export const getColors = () => {
   const drawn = [colors[Math.floor(Math.random() * colors.length)], colors[Math.floor(Math.random() * colors.length)]];

@@ -60,6 +60,7 @@ export default class Game {
     pieces.forEach((piece) => {
       results.push(Game.getMatchingToKillElements(piece));
     });
+    console.log(results);
 
     results.forEach((part) => {
       for (let attr in part) {
@@ -72,7 +73,7 @@ export default class Game {
     return isKill;
   }
 
-  static kill(pieces) {
+  static kill(pieces, callback) {
     const results = [];
     pieces.forEach((piece) => {
       results.push(Game.getMatchingToKillElements(piece));
@@ -86,13 +87,29 @@ export default class Game {
               const index = Board.viruses.findIndex((element) => element === piece);
               Board.viruses.splice(index, 1);
               Game.points += 100;
+              Board.elements[piece.position_y * 8 + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_x.png)`;
+              Board.table[piece.position_y][piece.position_x] = " ";
+            } else {
+              Board.elements[piece.position_y * 8 + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_o.png)`;
+              Board.table[piece.position_y][piece.position_x] = " ";
             }
-            Board.elements[piece.position_y * 8 + piece.position_x].style.backgroundColor = "white";
-            Board.table[piece.position_y][piece.position_x] = " ";
           });
         }
       }
     });
+    clearInterval(Game.fall_interval);
+    setTimeout(() => {
+      results.forEach((part) => {
+        for (let attr in part) {
+          if (part[attr].length >= 4 && attr !== "color") {
+            part[attr].forEach((piece) => {
+              Board.elements[piece.position_y * 8 + piece.position_x].style.backgroundImage = `url()`;
+            });
+          }
+        }
+      });
+      callback();
+    }, 500);
   }
   static checkingFalling() {
     //Zatrzymuje tworzenie nowych tabletek i na wszelki wyłączam gameActions
@@ -136,10 +153,8 @@ export default class Game {
       });
 
       if (piecesToFallNow.length === 0) {
-        clearInterval(Game.fall_interval);
         if (Game.isKill(allMovedPieces)) {
-          Game.kill(allMovedPieces);
-          Game.checkingFalling();
+          Game.kill(allMovedPieces, Game.checkingFalling);
         } else {
           if (Board.viruses.length === 0) {
             localStorage.setItem(localStorage.length, Game.points);
