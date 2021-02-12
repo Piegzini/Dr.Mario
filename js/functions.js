@@ -3,6 +3,9 @@ import Board from "./Board.js";
 
 const colors = ["yl", "bl", "br"];
 
+export const countOfAnimationRows = 6
+
+
 export const getColors = () => {
   const drawn = [colors[Math.floor(Math.random() * colors.length)], colors[Math.floor(Math.random() * colors.length)]];
   return drawn;
@@ -30,15 +33,17 @@ export const getViruses = (countOfViruses) => {
   let alreadyUsedPositions = [];
 
   const roll = (i) => {
-    const positions = { Y: Math.floor(Math.random() * 7) + 5, X: Math.floor(Math.random() * 8) };
+    const positions = { Y: Math.floor(Math.random() * 7) + 15, X: Math.floor(Math.random() * 8) };
     if (alreadyUsedPositions.includes(JSON.stringify(positions))) roll(i);
     else {
       viruses.push(new Piece("virus", positions.Y, positions.X, colors[i % 3], "horizontal", i));
       alreadyUsedPositions.push(JSON.stringify(positions));
     }
+    console.log(positions)
   };
   for (let i = 0; i < countOfViruses; i++) {
     roll(i);
+    
   }
   return viruses;
 };

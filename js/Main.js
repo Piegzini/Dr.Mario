@@ -1,7 +1,7 @@
 "use strict";
 import { Pixa, Piece } from "./Pixa.js";
 import Board from "./Board.js";
-import { getColors, gameActions, getSecondPiece, getViruses } from "./functions.js";
+import { getColors, gameActions, getSecondPiece, getViruses, countOfAnimationRows } from "./functions.js";
 export default class Game {
   static fall_interval;
   static allGames = [];
@@ -38,12 +38,12 @@ export default class Game {
     possibilities.forEach((possibility) => {
       let possibility_y = possibility[0];
       let possibility_x = possibility[1];
-      let tableElement = Board.table[possibility_y + piece.position_y][possibility_x + piece.position_x];
+      let tableElement = Board.table[possibility_y + piece.position_y - countOfAnimationRows][possibility_x + piece.position_x];
       while (tableElement?.color === firstColor) {
         possibility[0] == 0 ? matchingComponents_horizontal.push(tableElement) : matchingComponents_vertical.push(tableElement);
         possibility_x += possibility[1];
         possibility_y += possibility[0];
-        tableElement = Board.table[possibility_y + piece.position_y][possibility_x + piece.position_x];
+        tableElement = Board.table[possibility_y + piece.position_y - countOfAnimationRows][possibility_x + piece.position_x];
       }
     });
 
@@ -83,15 +83,17 @@ export default class Game {
       for (let attr in part) {
         if (part[attr].length >= 4 && attr !== "color") {
           part[attr].forEach((piece) => {
+            const constansAdd = Board.getConstansAddPiece(piece);
             if (piece.id === "virus" && Board.viruses.includes(piece)) {
               const index = Board.viruses.findIndex((element) => element === piece);
               Board.viruses.splice(index, 1);
               Game.points += 100;
-              Board.elements[piece.position_y * 8 + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_x.png)`;
-              Board.table[piece.position_y][piece.position_x] = " ";
+
+              Board.elements[constansAdd+ piece.position_x].style.backgroundImage = `url(../img/${piece.color}_x.png)`;
+              Board.table[piece.position_y - countOfAnimationRows][piece.position_x] = " ";
             } else {
-              Board.elements[piece.position_y * 8 + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_o.png)`;
-              Board.table[piece.position_y][piece.position_x] = " ";
+              Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_o.png)`;
+              Board.table[piece.position_y - countOfAnimationRows][piece.position_x] = " ";
             }
           });
         }
@@ -103,7 +105,8 @@ export default class Game {
         for (let attr in part) {
           if (part[attr].length >= 4 && attr !== "color") {
             part[attr].forEach((piece) => {
-              Board.elements[piece.position_y * 8 + piece.position_x].style.backgroundImage = `url()`;
+              const constansAdd = Board.getConstansAddPiece(piece);
+              Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url()`;
             });
           }
         }
@@ -125,19 +128,19 @@ export default class Game {
         pieces.forEach((first_piece) => {
           const second_piece = getSecondPiece(first_piece, alreadyUsedIdes);
           if (typeof second_piece === "object") {
-            if (first_piece.position === "horizontal" && first_piece.position_y + 1 !== Board.table.length - 1 && second_piece.position_y + 1 !== Board.table.length - 1) {
-              if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " " && Board.table[second_piece.position_y + 1][second_piece.position_x] === " ") {
+            if (first_piece.position === "horizontal" && first_piece.position_y + 1 - countOfAnimationRows !== Board.table.length - 1 && second_piece.position_y - countOfAnimationRows + 1 !== Board.table.length - 1) {
+              if (Board.table[first_piece.position_y - countOfAnimationRows + 1][first_piece.position_x] === " " && Board.table[second_piece.position_y - countOfAnimationRows + 1][second_piece.position_x] === " ") {
                 piecesToFallNow.push(first_piece, second_piece);
                 alreadyUsedIdes.push(first_piece.id);
               }
-            } else if (first_piece.position === "vertical" && first_piece.position_y + 1 !== Board.table.length - 1) {
-              if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " ") {
+            } else if (first_piece.position === "vertical" && first_piece.position_y + 1 - countOfAnimationRows!== Board.table.length - 1) {
+              if (Board.table[first_piece.position_y + 1 - countOfAnimationRows][first_piece.position_x] === " ") {
                 piecesToFallNow.push(first_piece, second_piece);
                 alreadyUsedIdes.push(first_piece.id);
               }
             }
           } else if (second_piece === "single") {
-            if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " " && first_piece.position_y + 1 !== Board.table.length - 1) {
+            if (Board.table[first_piece.position_y + 1 -  countOfAnimationRows ][first_piece.position_x] === " " && first_piece.position_y + 1 - countOfAnimationRows !== Board.table.length - 1) {
               piecesToFallNow.push(first_piece);
               alreadyUsedIdes.push(first_piece.id);
             }
@@ -173,7 +176,7 @@ export default class Game {
           }
         }
       }
-    }, 100);
+    }, 50);
   }
 }
 

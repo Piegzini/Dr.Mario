@@ -1,6 +1,6 @@
 "use strict";
 import Board from "./Board.js";
-import { gameActions } from "./functions.js";
+import { gameActions, countOfAnimationRows } from "./functions.js";
 import Game from "./Main.js";
 
 export class Piece {
@@ -22,9 +22,9 @@ export class Pixa {
     this.firstColor = colors[0];
     this.secondColor = colors[1];
     this.position = position;
-    this.first_piece_y = 0;
+    this.first_piece_y = 6;
     this.first_piece_x = 3;
-    this.second_piece_y = 0;
+    this.second_piece_y = 6;
     this.second_piece_x = 4;
   }
   move(place) {
@@ -34,16 +34,21 @@ export class Pixa {
     Board.pixaInsert(this);
   }
   moveRight() {
-    if (this.first_piece_x < 7 && this.second_piece_x < 7 && Board.table[this.second_piece_y][this.second_piece_x + 1] === " " && Board.table[this.first_piece_y][this.first_piece_x + 1] == " ")
+    if (
+      this.first_piece_x < 7 &&
+      this.second_piece_x < 7 &&
+      Board.table[this.second_piece_y - countOfAnimationRows][this.second_piece_x + 1] === " " &&
+      Board.table[this.first_piece_y - countOfAnimationRows][this.first_piece_x + 1] == " "
+    )
       this.move(1);
   }
   moveLeft() {
-    if (this.first_piece_x > 0 && this.second_piece_x > 0 && Board.table[this.first_piece_y][this.first_piece_x - 1] === " " && Board.table[this.second_piece_y][this.second_piece_x - 1] === " ")
+    if (this.first_piece_x > 0 && this.second_piece_x > 0 && Board.table[this.first_piece_y - countOfAnimationRows][this.first_piece_x - 1] === " " && Board.table[this.second_piece_y - countOfAnimationRows][this.second_piece_x - 1] === " ")
       this.move(-1);
   }
   rotation(direction) {
     Board.pixaClear(this);
-    if (this.position === "horizontal" && this.first_piece_y === 0 && this.second_piece_y == 0) {
+    if (this.position === "horizontal" && this.first_piece_y - 6 === 0 && this.second_piece_y - 6 === 0 && (this.first_piece_x < 3 || this.second_piece_x > 4)) {
       console.log("nic");
     } else if (this.position === "horizontal" && Board.table[this.first_piece_y - 1][this.first_piece_x] === " ") {
       this.second_piece_x = this.first_piece_x;
@@ -74,10 +79,10 @@ export class Pixa {
 
   descent(turnedByClick) {
     if (
-      Board.table[this.second_piece_y + 1][this.second_piece_x] == !" " &&
-      Board.table[this.first_piece_y + 1][this.first_piece_x] == !" " &&
-      this.first_piece_y < Board.table.length - 2 &&
-      this.second_piece_y < Board.table.length - 2
+      Board.table[this.second_piece_y + 1 - countOfAnimationRows][this.second_piece_x] == !" " &&
+      Board.table[this.first_piece_y + 1 - countOfAnimationRows][this.first_piece_x] == !" " &&
+      this.first_piece_y - countOfAnimationRows < Board.table.length - 2 &&
+      this.second_piece_y - countOfAnimationRows < Board.table.length - 2
     ) {
       Board.pixaClear(this);
       //Opdadanie tak zwane
@@ -92,7 +97,7 @@ export class Pixa {
       //Wstawiam pixe na planszy
       Board.pixaInsert(this);
     } else {
-      if (this.second_piece_y === 0 && this.first_piece_y === 0) {
+      if (this.second_piece_y - countOfAnimationRows  === 0 && this.first_piece_y - countOfAnimationRows === 0) {
         console.log("Przegrałeś");
         clearInterval(Game.fall_interval);
         document.removeEventListener("keydown", gameActions);
@@ -107,7 +112,6 @@ export class Pixa {
 
         if (Game.isKill([first_piece, second_piece])) {
           Game.kill([first_piece, second_piece], Game.checkingFalling);
-          // setTimeout(Game.checkingFalling, 500);
         } else {
           Game.checkingFalling();
         }
