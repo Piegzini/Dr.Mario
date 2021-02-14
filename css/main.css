@@ -65,3 +65,29 @@ body {
   top: 50px;
   right: 52px;
 }
+#loop {
+  width: 190px;
+  height: 190px;
+  /* background-color: rgba(255, 255, 255, 0.6); */
+  position: absolute;
+  top: 195px;
+  left: 25px;
+}
+#virus_bl,
+#virus_br,
+#virus_yl {
+  position: absolute;
+  height: calc(72px * 0.72);
+  width: calc(96px * 0.72);
+  background-size: cover;
+}
+
+#virus_bl {
+  background-image: url(../img/lupa/bl/1.png);
+}
+#virus_yl {
+  background-image: url(../img/lupa/yl/1.png);
+}
+#virus_br {
+  background-image: url(../img/lupa/br/1.png);
+}

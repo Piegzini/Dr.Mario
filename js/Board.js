@@ -1,11 +1,12 @@
 "use strict";
 
 import { getSecondPiece, getViruses } from "./functions.js";
-
+import { SpiningVirus } from "./SpiningVirus.js";
 export default class Board {
   static table = [];
   static elements;
   static viruses = [];
+  static countOfViruses = { yl: 0, br: 0, bl: 0}
   setBoard() {
     this.board = document.getElementById("board");
 
@@ -33,9 +34,16 @@ export default class Board {
     const viruses = getViruses(3);
     Board.viruses.push(...viruses);
     Board.elements = document.querySelectorAll(".element");
-
     viruses.forEach((virus) => {
+      Board.countOfViruses[virus.color]++
       Board.virusInsertPush(virus);
+    });
+    const spiningViruses = document.querySelectorAll(".spinningVirus");
+    spiningViruses.forEach((spiningVirus) => { 
+      let color = spiningVirus.id.substr(spiningVirus.id.length - 2);
+      const virus = new SpiningVirus(spiningVirus, color);
+      virus.animationInterval = setInterval(virus.animation ,  300)
+      SpiningVirus.all.push(virus);
     });
   }
 
@@ -45,8 +53,7 @@ export default class Board {
     return [constansAddFirstPiece, constansAddSecondPiece];
   }
   static getConstansAddPiece(piece) {
-    let constansAdd = 0;
-    piece.position_y > 8 ? (constansAdd = 120 + (piece.position_y - 8) * 8) : piece.position_y * 15;
+    let constansAdd = piece.position_y > 8 ? 120 + (piece.position_y - 8) * 8 : piece.position_y * 15;
     return constansAdd;
   }
   static pixaClear(pixa) {

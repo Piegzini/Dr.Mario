@@ -40,9 +40,9 @@ export async function animation() {
       const pixa = new Pixa(Pixa.allPixes.length, getColors());
       Board.pixaInsert(pixa);
       Pixa.allPixes.push(pixa);
-      
+
       Game.fall_interval = setInterval(() => current_pixa.descent(), 400);
-      setTimeout(() => document.addEventListener("keydown", gameActions), 500)
+      setTimeout(() => document.addEventListener("keydown", gameActions), 500);
     }
     await framesPromises[frameOrder[i]](frameParameters[i][0], frameParameters[i][1], frameParameters[i][2], frameParameters[i][3]);
   }
@@ -83,3 +83,7 @@ const framesPromises = [
     });
   },
 ];
+
+
+
+

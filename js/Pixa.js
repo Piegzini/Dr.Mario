@@ -2,6 +2,7 @@
 import Board from "./Board.js";
 import { gameActions, countOfAnimationRows } from "./functions.js";
 import Game from "./Main.js";
+import { SpiningVirus } from "./SpiningVirus.js";
 
 export class Piece {
   constructor(id, position_y, position_x, color, position, virusNumber = null) {
@@ -95,12 +96,17 @@ export class Pixa {
       Board.pixaInsert(this);
     } else {
       if (this.second_piece_y <= 5 && this.first_piece_y <= 5) {
-        const currentGame = Game.all[Game.all.length - 1] 
-        currentGame.lossMario.style.opacity = 1
-        currentGame.lossBanner.style.opacity = 1
+        const currentGame = Game.all[Game.all.length - 1];
+        currentGame.lossMario.style.opacity = 1;
+        currentGame.lossBanner.style.opacity = 1;
         clearInterval(Game.fall_interval);
+
+        const highestScore = localStorage.getItem("highestScore");
+        Game.points > highestScore ? localStorage.setItem("highestScore", Game.points) : null;
         document.removeEventListener("keydown", gameActions);
-        localStorage.setItem(localStorage.length, Game.points);
+        Game.result = "loss";
+        clearInterval(SpiningVirus.circleAnimationInterval)
+
       } else {
         //Towrze sobie nowe obiekty klasy piece, aby wrzycić je do tabeli odzwierciedlającej plansze gry
         const first_piece = new Piece(this.id, this.first_piece_y, this.first_piece_x, this.firstColor, this.position);
@@ -109,6 +115,7 @@ export class Pixa {
         Board.pixaInsert(this);
 
         if (Game.isKill([first_piece, second_piece])) {
+          document.removeEventListener("keydown", gameActions);
           Game.kill([first_piece, second_piece], Game.checkingFalling);
         } else {
           Game.checkingFalling();

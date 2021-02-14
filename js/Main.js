@@ -8,11 +8,15 @@ export default class Game {
   static all = [];
   static points = 0;
   static flag = false;
+  static result = "during";
   constructor() {
     this.Board = new Board();
     this.lossBanner = document.getElementById("loss");
     this.winBanner = document.getElementById("win");
     this.lossMario = document.getElementById("lossMario");
+    this.brownVirus = document.getElementById("virus_br");
+    this.yellowVirus = document.getElementById("virus_yl");
+    this.blueVirus = document.getElementById("virus_bl");
     Game.all.push(this);
   }
 
@@ -21,7 +25,6 @@ export default class Game {
     const pixa = new Pixa(Pixa.allPixes.length, getColors());
     Board.pixaInsert(pixa);
     Pixa.allPixes.push(pixa);
-
     animation();
   }
   static getMatchingToKillElements(piece) {
@@ -88,12 +91,10 @@ export default class Game {
               const index = Board.viruses.findIndex((element) => element === piece);
               Board.viruses.splice(index, 1);
               Game.points += 100;
-
+              Board.countOfViruses[piece.color]--;
               Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_x.png)`;
-              Board.table[piece.position_y][piece.position_x] = " ";
             } else {
               Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_o.png)`;
-              Board.table[piece.position_y][piece.position_x] = " ";
             }
           });
         }
@@ -105,8 +106,15 @@ export default class Game {
         for (let attr in part) {
           if (part[attr].length >= 4 && attr !== "color") {
             part[attr].forEach((piece) => {
+              if(typeof(getSecondPiece(piece, [])) === 'object'){
+                const second_piece = getSecondPiece(piece, [])
+                const constansAdd = Board.getConstansAddPiece(second_piece)
+                Board.elements[constansAdd + second_piece.position_x].style.backgroundImage = `url(../img/${second_piece.color}_dot.png)`;
+              }
+
               const constansAdd = Board.getConstansAddPiece(piece);
               Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url()`;
+              Board.table[piece.position_y][piece.position_x] = " ";
             });
           }
         }
@@ -160,13 +168,15 @@ export default class Game {
           Game.kill(allMovedPieces, Game.checkingFalling);
         } else {
           if (Board.viruses.length === 0) {
-            const highestScore = localStorage.getItem('highestScore')
-            Game.points > highestScore ? localStorage.setItem('highestScore', Game.points) : null
+            const highestScore = localStorage.getItem("highestScore");
+            Game.points > highestScore ? localStorage.setItem("highestScore", Game.points) : null;
             clearInterval(Game.fall_interval);
             document.removeEventListener("keydown", gameActions);
 
             const currentGame = Game.all[Game.all.length - 1];
             currentGame.winBanner.style.opacity = 1;
+
+            Game.result = "win";
           } else {
             clearInterval(Game.fall_interval);
             animation();
