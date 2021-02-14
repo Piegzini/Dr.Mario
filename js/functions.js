@@ -39,22 +39,19 @@ export const getViruses = (countOfViruses) => {
       viruses.push(new Piece("virus", positions.Y, positions.X, colors[i % 3], "horizontal", i));
       alreadyUsedPositions.push(JSON.stringify(positions));
     }
-    console.log(positions)
   };
   for (let i = 0; i < countOfViruses; i++) {
-    roll(i);
-    
+    roll(i);    
   }
   return viruses;
 };
 
 export const gameActions = (e) => {
   const key = e.key;
-
   const amount_of_pixes = Pixa.allPixes.length;
-  const current_pixa = Pixa.allPixes[amount_of_pixes - 1];
-
-  if (key == "ArrowRight" || key == "d" || key == "D") current_pixa.moveRight();
+  const current_pixa = Pixa.allPixes[amount_of_pixes - 2];
+  
+  if ((key == "ArrowRight" || key == "d" || key == "D")) current_pixa.moveRight();
   else if (key == "ArrowLeft" || key == "a" || key == "A") current_pixa.moveLeft();
   else if (key == "ArrowDown" || key == "s" || key == "S") current_pixa.descent(true);
   else if (key == "ArrowUp" || key == "w" || key == "W") current_pixa.rotation("left");

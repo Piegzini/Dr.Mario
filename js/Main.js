@@ -1,27 +1,28 @@
 "use strict";
 import { Pixa, Piece } from "./Pixa.js";
 import Board from "./Board.js";
-import { getColors, gameActions, getSecondPiece, getViruses, countOfAnimationRows } from "./functions.js";
+import { getColors, gameActions, getSecondPiece, getViruses } from "./functions.js";
+import { animation } from "./animations.js";
 export default class Game {
   static fall_interval;
-  static allGames = [];
+  static all = [];
   static points = 0;
+  static flag = false;
   constructor() {
     this.Board = new Board();
-    Game.allGames.push(this);
+    this.lossBanner = document.getElementById("loss");
+    this.winBanner = document.getElementById("win");
+    this.lossMario = document.getElementById("lossMario");
+    Game.all.push(this);
   }
 
   startGame() {
     this.Board.setBoard();
-
     const pixa = new Pixa(Pixa.allPixes.length, getColors());
     Board.pixaInsert(pixa);
     Pixa.allPixes.push(pixa);
-    document.addEventListener("keydown", gameActions);
 
-    setTimeout(() => {
-      Game.fall_interval = setInterval(() => pixa.descent(), 400);
-    }, 400);
+    animation();
   }
   static getMatchingToKillElements(piece) {
     let possibilities = [
@@ -38,12 +39,12 @@ export default class Game {
     possibilities.forEach((possibility) => {
       let possibility_y = possibility[0];
       let possibility_x = possibility[1];
-      let tableElement = Board.table[possibility_y + piece.position_y - countOfAnimationRows][possibility_x + piece.position_x];
+      let tableElement = Board.table[possibility_y + piece.position_y][possibility_x + piece.position_x];
       while (tableElement?.color === firstColor) {
         possibility[0] == 0 ? matchingComponents_horizontal.push(tableElement) : matchingComponents_vertical.push(tableElement);
         possibility_x += possibility[1];
         possibility_y += possibility[0];
-        tableElement = Board.table[possibility_y + piece.position_y - countOfAnimationRows][possibility_x + piece.position_x];
+        tableElement = Board.table[possibility_y + piece.position_y][possibility_x + piece.position_x];
       }
     });
 
@@ -60,7 +61,6 @@ export default class Game {
     pieces.forEach((piece) => {
       results.push(Game.getMatchingToKillElements(piece));
     });
-    console.log(results);
 
     results.forEach((part) => {
       for (let attr in part) {
@@ -89,11 +89,11 @@ export default class Game {
               Board.viruses.splice(index, 1);
               Game.points += 100;
 
-              Board.elements[constansAdd+ piece.position_x].style.backgroundImage = `url(../img/${piece.color}_x.png)`;
-              Board.table[piece.position_y - countOfAnimationRows][piece.position_x] = " ";
+              Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_x.png)`;
+              Board.table[piece.position_y][piece.position_x] = " ";
             } else {
               Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_o.png)`;
-              Board.table[piece.position_y - countOfAnimationRows][piece.position_x] = " ";
+              Board.table[piece.position_y][piece.position_x] = " ";
             }
           });
         }
@@ -122,25 +122,25 @@ export default class Game {
     Game.fall_interval = setInterval(() => {
       let piecesToFallNow = [];
       let alreadyUsedIdes = [];
-      for (let i = 15; i >= 0; i--) {
+      for (let i = 22; i >= 0; i--) {
         const row = Board.table[i];
         let pieces = row.filter((element) => (element instanceof Piece && element?.id !== "virus" ? element : null));
         pieces.forEach((first_piece) => {
           const second_piece = getSecondPiece(first_piece, alreadyUsedIdes);
           if (typeof second_piece === "object") {
-            if (first_piece.position === "horizontal" && first_piece.position_y + 1 - countOfAnimationRows !== Board.table.length - 1 && second_piece.position_y - countOfAnimationRows + 1 !== Board.table.length - 1) {
-              if (Board.table[first_piece.position_y - countOfAnimationRows + 1][first_piece.position_x] === " " && Board.table[second_piece.position_y - countOfAnimationRows + 1][second_piece.position_x] === " ") {
+            if (first_piece.position === "horizontal" && first_piece.position_y + 1 !== Board.table.length - 1 && second_piece.position_y + 1 !== Board.table.length - 1) {
+              if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " " && Board.table[second_piece.position_y + 1][second_piece.position_x] === " ") {
                 piecesToFallNow.push(first_piece, second_piece);
                 alreadyUsedIdes.push(first_piece.id);
               }
-            } else if (first_piece.position === "vertical" && first_piece.position_y + 1 - countOfAnimationRows!== Board.table.length - 1) {
-              if (Board.table[first_piece.position_y + 1 - countOfAnimationRows][first_piece.position_x] === " ") {
+            } else if (first_piece.position === "vertical" && first_piece.position_y + 1 !== Board.table.length - 1) {
+              if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " ") {
                 piecesToFallNow.push(first_piece, second_piece);
                 alreadyUsedIdes.push(first_piece.id);
               }
             }
           } else if (second_piece === "single") {
-            if (Board.table[first_piece.position_y + 1 -  countOfAnimationRows ][first_piece.position_x] === " " && first_piece.position_y + 1 - countOfAnimationRows !== Board.table.length - 1) {
+            if (Board.table[first_piece.position_y + 1][first_piece.position_x] === " " && first_piece.position_y + 1 !== Board.table.length - 1) {
               piecesToFallNow.push(first_piece);
               alreadyUsedIdes.push(first_piece.id);
             }
@@ -160,23 +160,20 @@ export default class Game {
           Game.kill(allMovedPieces, Game.checkingFalling);
         } else {
           if (Board.viruses.length === 0) {
-            localStorage.setItem(localStorage.length, Game.points);
+            const highestScore = localStorage.getItem('highestScore')
+            Game.points > highestScore ? localStorage.setItem('highestScore', Game.points) : null
             clearInterval(Game.fall_interval);
             document.removeEventListener("keydown", gameActions);
-            console.log("Wygrałeś koniec gry");
+
+            const currentGame = Game.all[Game.all.length - 1];
+            currentGame.winBanner.style.opacity = 1;
           } else {
-            const pixa = new Pixa(Pixa.allPixes.length, getColors());
-            Board.pixaInsert(pixa);
-
-            document.addEventListener("keydown", gameActions);
-
-            Pixa.allPixes.push(pixa);
             clearInterval(Game.fall_interval);
-            Game.fall_interval = setInterval(() => pixa.descent(), 400);
+            animation();
           }
         }
       }
-    }, 50);
+    }, 40);
   }
 }
 

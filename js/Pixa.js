@@ -22,10 +22,10 @@ export class Pixa {
     this.firstColor = colors[0];
     this.secondColor = colors[1];
     this.position = position;
-    this.first_piece_y = 6;
-    this.first_piece_x = 3;
-    this.second_piece_y = 6;
-    this.second_piece_x = 4;
+    this.first_piece_y = 3;
+    this.first_piece_x = 13;
+    this.second_piece_y = 3;
+    this.second_piece_x = 14;
   }
   move(place) {
     Board.pixaClear(this);
@@ -34,22 +34,20 @@ export class Pixa {
     Board.pixaInsert(this);
   }
   moveRight() {
-    if (
-      this.first_piece_x < 7 &&
-      this.second_piece_x < 7 &&
-      Board.table[this.second_piece_y - countOfAnimationRows][this.second_piece_x + 1] === " " &&
-      Board.table[this.first_piece_y - countOfAnimationRows][this.first_piece_x + 1] == " "
-    )
-      this.move(1);
+    if (this.first_piece_y > 5 && this.second_piece_y > 5) {
+      if (this.first_piece_x < 7 && this.second_piece_x < 7 && Board.table[this.second_piece_y][this.second_piece_x + 1] === " " && Board.table[this.first_piece_y][this.first_piece_x + 1] == " ")
+        this.move(1);
+    }
   }
   moveLeft() {
-    if (this.first_piece_x > 0 && this.second_piece_x > 0 && Board.table[this.first_piece_y - countOfAnimationRows][this.first_piece_x - 1] === " " && Board.table[this.second_piece_y - countOfAnimationRows][this.second_piece_x - 1] === " ")
-      this.move(-1);
+    if (this.first_piece_y > 5 && this.second_piece_y > 5) {
+      if (this.first_piece_x > 0 && this.second_piece_x > 0 && Board.table[this.first_piece_y][this.first_piece_x - 1] === " " && Board.table[this.second_piece_y][this.second_piece_x - 1] === " ")
+        this.move(-1);
+    }
   }
-  rotation(direction) {
+  rotation(direction, animation = false) {
     Board.pixaClear(this);
-    if (this.position === "horizontal" && this.first_piece_y - 6 === 0 && this.second_piece_y - 6 === 0 && (this.first_piece_x < 3 || this.second_piece_x > 4)) {
-      console.log("nic");
+    if (this.position === "horizontal" && this.first_piece_y === 0 && this.second_piece_y === 0 && (this.first_piece_x < 3 || this.second_piece_x > 4)) {
     } else if (this.position === "horizontal" && Board.table[this.first_piece_y - 1][this.first_piece_x] === " ") {
       this.second_piece_x = this.first_piece_x;
       this.second_piece_y = this.first_piece_y - 1;
@@ -57,16 +55,16 @@ export class Pixa {
       if (direction === "right") [this.firstColor, this.secondColor] = [this.secondColor, this.firstColor];
 
       this.position = "vertical";
-    } else if (this.position === "vertical" && Board.table[this.first_piece_y][this.first_piece_x + 1] === " ") {
-      this.second_piece_x = this.first_piece_x + 1;
+    } else if ((this.position === "vertical" && this.second_piece_x === 7 && Board.table[this.first_piece_y][7] === " " && Board.table[this.first_piece_y][6] === " ") || animation) {
+      this.second_piece_x = this.second_piece_x;
+      this.first_piece_x = this.first_piece_x - 1;
       this.second_piece_y++;
 
       if (direction === "left") [this.firstColor, this.secondColor] = [this.secondColor, this.firstColor];
 
       this.position = "horizontal";
-    } else if (this.position === "vertical" && this.second_piece_x === 7 && Board.table[this.first_piece_y][7] === " " && Board.table[this.first_piece_y][6] === " ") {
-      this.second_piece_x = 7;
-      this.first_piece_x = 6;
+    } else if (this.position === "vertical" && Board.table[this.first_piece_y][this.first_piece_x + 1] === " ") {
+      this.second_piece_x = this.first_piece_x + 1;
       this.second_piece_y++;
 
       if (direction === "left") [this.firstColor, this.secondColor] = [this.secondColor, this.firstColor];
@@ -79,10 +77,10 @@ export class Pixa {
 
   descent(turnedByClick) {
     if (
-      Board.table[this.second_piece_y + 1 - countOfAnimationRows][this.second_piece_x] == !" " &&
-      Board.table[this.first_piece_y + 1 - countOfAnimationRows][this.first_piece_x] == !" " &&
-      this.first_piece_y - countOfAnimationRows < Board.table.length - 2 &&
-      this.second_piece_y - countOfAnimationRows < Board.table.length - 2
+      Board.table[this.second_piece_y + 1][this.second_piece_x] == !" " &&
+      Board.table[this.first_piece_y + 1][this.first_piece_x] == !" " &&
+      this.first_piece_y < Board.table.length - 2 &&
+      this.second_piece_y < Board.table.length - 2
     ) {
       Board.pixaClear(this);
       //Opdadanie tak zwane
@@ -94,11 +92,12 @@ export class Pixa {
         clearInterval(Game.fall_interval);
         Game.fall_interval = setInterval(() => this.descent(), 20);
       }
-      //Wstawiam pixe na planszy
       Board.pixaInsert(this);
     } else {
-      if (this.second_piece_y - countOfAnimationRows  === 0 && this.first_piece_y - countOfAnimationRows === 0) {
-        console.log("Przegrałeś");
+      if (this.second_piece_y <= 5 && this.first_piece_y <= 5) {
+        const currentGame = Game.all[Game.all.length - 1] 
+        currentGame.lossMario.style.opacity = 1
+        currentGame.lossBanner.style.opacity = 1
         clearInterval(Game.fall_interval);
         document.removeEventListener("keydown", gameActions);
         localStorage.setItem(localStorage.length, Game.points);
@@ -107,7 +106,6 @@ export class Pixa {
         const first_piece = new Piece(this.id, this.first_piece_y, this.first_piece_x, this.firstColor, this.position);
         const second_piece = new Piece(this.id, this.second_piece_y, this.second_piece_x, this.secondColor, this.position);
         Board.pixaPush(first_piece, second_piece);
-
         Board.pixaInsert(this);
 
         if (Game.isKill([first_piece, second_piece])) {
