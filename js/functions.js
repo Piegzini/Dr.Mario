@@ -31,7 +31,7 @@ export const getViruses = (countOfViruses) => {
   let alreadyUsedPositions = [];
 
   const roll = (i) => {
-    const positions = { Y: Math.floor(Math.random() * 7) + 15, X: Math.floor(Math.random() * 8) };
+    const positions = { Y: Math.floor(Math.random() * 10) + 12, X: Math.floor(Math.random() * 8) };
     if (alreadyUsedPositions.includes(JSON.stringify(positions))) roll(i);
     else {
       viruses.push(new Piece("virus", positions.Y, positions.X, colors[i % 3], "horizontal", i));

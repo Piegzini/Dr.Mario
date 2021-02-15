@@ -40,4 +40,18 @@ export default class Counters {
         elementsCounter--;
       }
   }
+
+  static levelScoreElements = document.querySelectorAll(".level_element")
+  static refreshLevelScore(){
+    this.levelScoreElements.forEach((img) => {
+        img.src = `../img/cyfry/0.png`;
+      });
+      const levelNumber = `${Game.level}`
+      let elementsCounter = this.virusScoreElements.length - 1;
+      for (let i = levelNumber.length - 1; i >= 0; i--) {
+
+        this.levelScoreElements[elementsCounter].src = `../img/cyfry/${levelNumber.charAt(i)}.png`;
+        elementsCounter--;
+      }
+  }
 }

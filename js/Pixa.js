@@ -110,7 +110,7 @@ export class Pixa {
       Board.pixaInsert(this);
     } else {
       clearInterval(Game.intervalMove);
-      if (this.second_piece_y <= 5 && this.first_piece_y <= 5) {
+      if (this.second_piece_y <= 6 && this.first_piece_y <= 6) {
         const currentGame = Game.all[Game.all.length - 1];
         currentGame.lossMario.style.opacity = 1;
         currentGame.lossBanner.style.opacity = 1;

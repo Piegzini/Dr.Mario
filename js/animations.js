@@ -42,7 +42,7 @@ export async function animation() {
       Pixa.allPixes.push(pixa);
 
       Game.fall_interval = setInterval(() => current_pixa.descent(), 400);
-      setTimeout(() => document.addEventListener("keydown", gameActions), 500);
+      setTimeout(() => document.addEventListener("keydown", gameActions), 430);
     }
     await framesPromises[frameOrder[i]](frameParameters[i][0], frameParameters[i][1], frameParameters[i][2], frameParameters[i][3]);
   }

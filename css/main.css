@@ -27,7 +27,7 @@ body {
 #container {
   position: relative;
   margin: 150px auto 0 auto;
-  background: url(../img/pf.png) no-repeat;
+  background: url(../img/1_pf.png) no-repeat;
   width: 640px;
   height: 384px;
 }
@@ -108,7 +108,8 @@ body {
 }
 .topScore_element,
 .currentScore_element,
-.virusScore_element {
+.virusScore_element,
+.level_element {
   width: 16px;
   height: 16px;
   margin: 0;
@@ -120,11 +121,15 @@ body {
   top: calc(16px * 8);
 }
 
-#virusCounter {
+#virusCounter, #levelCounter {
   display: flex;
   width: calc(16px * 2);
   height: 16px;
   position: absolute;
   bottom: calc(16px * 2);
   right: calc(16px * 3);
+}
+
+#levelCounter{
+  bottom: calc(16px * 8);
 }

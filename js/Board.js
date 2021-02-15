@@ -2,12 +2,13 @@
 
 import { getSecondPiece, getViruses } from "./functions.js";
 import { SpiningVirus } from "./SpiningVirus.js";
-import Counters from "./scores.js"
+import Game from "./Main.js";
+import Counters from "./scores.js";
 export default class Board {
   static table = [];
   static elements;
   static viruses = [];
-  static countOfViruses = { yl: 0, br: 0, bl: 0}
+  static countOfViruses = { yl: 0, br: 0, bl: 0 };
   setBoard() {
     this.board = document.getElementById("board");
 
@@ -32,24 +33,38 @@ export default class Board {
         Board.table[i].push(" ");
       }
     }
-    const viruses = getViruses(5);
+    const viruses = getViruses(5 * Game.level);
     Board.viruses.push(...viruses);
     Board.elements = document.querySelectorAll(".element");
     viruses.forEach((virus) => {
-      Board.countOfViruses[virus.color]++
+      Board.countOfViruses[virus.color]++;
       Board.virusInsertPush(virus);
     });
     const spiningViruses = document.querySelectorAll(".spinningVirus");
-    spiningViruses.forEach((spiningVirus) => { 
+    spiningViruses.forEach((spiningVirus) => {
       let color = spiningVirus.id.substr(spiningVirus.id.length - 2);
       const virus = new SpiningVirus(spiningVirus, color);
-      virus.animationInterval = setInterval(virus.animation ,  250)
+      virus.animationInterval = setInterval(virus.animation, 250);
       SpiningVirus.all[color] = virus;
     });
 
-    Counters.refreshTopScore()
-    Counters.refreshCurrentScore()
-    Counters.refreshVirusScore()
+    Counters.refreshTopScore();
+    Counters.refreshCurrentScore();
+    Counters.refreshVirusScore();
+    Counters.refreshLevelScore()
+  }
+
+  static clearBoard() {
+    this.board = document.getElementById("board");
+    Board.table = [];
+    while (this.board.firstChild) {
+      this.board.removeChild(this.board.firstChild);
+    }
+    const containter = document.getElementById("container");
+    containter.style.backgroundImage = `url(../img/${Game.level % 8}_pf.png)`;
+    Game.result = "during";
+    Game.all[Game.all.length - 1].winBanner.style.opacity = 0;
+    Game.all[Game.all.length - 1].startGame();
   }
 
   static getConstansAddPixa(pixa) {

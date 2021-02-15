@@ -13,8 +13,9 @@ export default class Game {
   static flag = false;
   static turnedButton;
   static result = "during";
+  static level = 1;
+  static boards = [];
   constructor() {
-    this.Board = new Board();
     this.lossBanner = document.getElementById("loss");
     this.winBanner = document.getElementById("win");
     this.lossMario = document.getElementById("lossMario");
@@ -25,7 +26,9 @@ export default class Game {
   }
 
   startGame() {
-    this.Board.setBoard();
+    const board = new Board();
+    board.setBoard();
+    Game.boards.push(board);
     const pixa = new Pixa(Pixa.allPixes.length, getColors());
     Board.pixaInsert(pixa);
     Pixa.allPixes.push(pixa);
@@ -180,10 +183,12 @@ export default class Game {
             Game.points > highestScore ? localStorage.setItem("highestScore", Game.points) : null;
             clearInterval(Game.fall_interval);
             document.removeEventListener("keydown", gameActions);
-
+            Game.level++;
             const currentGame = Game.all[Game.all.length - 1];
             currentGame.winBanner.style.opacity = 1;
-
+            setTimeout(() => {
+              Board.clearBoard();
+            }, 1000);
             Game.result = "win";
           } else {
             clearInterval(Game.fall_interval);

@@ -37,12 +37,12 @@ export class SpiningVirus {
         setTimeout(() => {
           clearInterval(this.animationInterval)
           this.element.style.backgroundImage = `url()`;
-        }, 1500);
+        }, 800);
       }
       else if(Board.countOfViruses[this.color] > 0){
         setTimeout(() => {
           this.lives = true
-        }, 1500);
+        }, 800);
       }
     }
   };
