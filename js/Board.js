@@ -67,7 +67,7 @@ export default class Board {
     containter.style.backgroundImage = `url(../img/${Game.level % 8}_pf.png)`;
     Game.result = "during";
     Game.all[Game.all.length - 1].winBanner.style.opacity = 0;
-    Game.all[Game.all.length - 1].startGame();
+    setTimeout(Game.all[Game.all.length - 1].startGame, 500);
   }
 
   static getConstansAddPixa(pixa) {
