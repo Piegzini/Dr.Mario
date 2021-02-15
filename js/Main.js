@@ -3,11 +3,15 @@ import { Pixa, Piece } from "./Pixa.js";
 import Board from "./Board.js";
 import { getColors, gameActions, getSecondPiece, getViruses } from "./functions.js";
 import { animation } from "./animations.js";
+import { SpiningVirus } from "./SpiningVirus.js";
+import Counters from "./scores.js";
 export default class Game {
   static fall_interval;
+  static intervalMove;
   static all = [];
   static points = 0;
   static flag = false;
+  static turnedButton;
   static result = "during";
   constructor() {
     this.Board = new Board();
@@ -91,7 +95,12 @@ export default class Game {
               const index = Board.viruses.findIndex((element) => element === piece);
               Board.viruses.splice(index, 1);
               Game.points += 100;
+              Counters.refreshCurrentScore();
+              Counters.refreshVirusScore();
+
               Board.countOfViruses[piece.color]--;
+
+              SpiningVirus.all[piece.color].lives = false;
               Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_x.png)`;
             } else {
               Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url(../img/${piece.color}_o.png)`;
@@ -106,12 +115,11 @@ export default class Game {
         for (let attr in part) {
           if (part[attr].length >= 4 && attr !== "color") {
             part[attr].forEach((piece) => {
-              if(typeof(getSecondPiece(piece, [])) === 'object'){
-                const second_piece = getSecondPiece(piece, [])
-                const constansAdd = Board.getConstansAddPiece(second_piece)
+              if (typeof getSecondPiece(piece, []) === "object" && piece.id !== "virus") {
+                const second_piece = getSecondPiece(piece, []);
+                const constansAdd = Board.getConstansAddPiece(second_piece);
                 Board.elements[constansAdd + second_piece.position_x].style.backgroundImage = `url(../img/${second_piece.color}_dot.png)`;
               }
-
               const constansAdd = Board.getConstansAddPiece(piece);
               Board.elements[constansAdd + piece.position_x].style.backgroundImage = `url()`;
               Board.table[piece.position_y][piece.position_x] = " ";

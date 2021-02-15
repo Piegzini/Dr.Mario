@@ -1,6 +1,6 @@
 "use strict";
 import Board from "./Board.js";
-import { gameActions, countOfAnimationRows } from "./functions.js";
+import { gameActions } from "./functions.js";
 import Game from "./Main.js";
 import { SpiningVirus } from "./SpiningVirus.js";
 
@@ -36,14 +36,22 @@ export class Pixa {
   }
   moveRight() {
     if (this.first_piece_y > 5 && this.second_piece_y > 5) {
-      if (this.first_piece_x < 7 && this.second_piece_x < 7 && Board.table[this.second_piece_y][this.second_piece_x + 1] === " " && Board.table[this.first_piece_y][this.first_piece_x + 1] == " ")
+      if (this.first_piece_x < 7 && this.second_piece_x < 7 && Board.table[this.second_piece_y][this.second_piece_x + 1] === " " && Board.table[this.first_piece_y][this.first_piece_x + 1] === " ")
         this.move(1);
+    } else if (this.second_piece_y <= 5 && this.position === "vertical") {
+      if (this.first_piece_x === 3) {
+        this.move(1);
+      }
     }
   }
   moveLeft() {
     if (this.first_piece_y > 5 && this.second_piece_y > 5) {
       if (this.first_piece_x > 0 && this.second_piece_x > 0 && Board.table[this.first_piece_y][this.first_piece_x - 1] === " " && Board.table[this.second_piece_y][this.second_piece_x - 1] === " ")
         this.move(-1);
+    } else if (this.second_piece_y <= 5 && this.position === "vertical") {
+      if (this.first_piece_x === 4) {
+        this.move(-1);
+      }
     }
   }
   rotation(direction, animation = false) {
@@ -56,7 +64,13 @@ export class Pixa {
       if (direction === "right") [this.firstColor, this.secondColor] = [this.secondColor, this.firstColor];
 
       this.position = "vertical";
-    } else if ((this.position === "vertical" && this.second_piece_x === 7 && Board.table[this.first_piece_y][7] === " " && Board.table[this.first_piece_y][6] === " ") || animation) {
+    } else if (
+      (this.position === "vertical" &&
+        Board.table[this.first_piece_y][this.first_piece_x + 1] !== " " &&
+        Board.table[this.first_piece_y][this.first_piece_x] === " " &&
+        Board.table[this.first_piece_y][this.first_piece_x - 1] === " ") ||
+      animation
+    ) {
       this.second_piece_x = this.second_piece_x;
       this.first_piece_x = this.first_piece_x - 1;
       this.second_piece_y++;
@@ -95,6 +109,7 @@ export class Pixa {
       }
       Board.pixaInsert(this);
     } else {
+      clearInterval(Game.intervalMove);
       if (this.second_piece_y <= 5 && this.first_piece_y <= 5) {
         const currentGame = Game.all[Game.all.length - 1];
         currentGame.lossMario.style.opacity = 1;
@@ -105,8 +120,7 @@ export class Pixa {
         Game.points > highestScore ? localStorage.setItem("highestScore", Game.points) : null;
         document.removeEventListener("keydown", gameActions);
         Game.result = "loss";
-        clearInterval(SpiningVirus.circleAnimationInterval)
-
+        clearInterval(SpiningVirus.circleAnimationInterval);
       } else {
         //Towrze sobie nowe obiekty klasy piece, aby wrzycić je do tabeli odzwierciedlającej plansze gry
         const first_piece = new Piece(this.id, this.first_piece_y, this.first_piece_x, this.firstColor, this.position);

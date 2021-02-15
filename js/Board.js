@@ -2,6 +2,7 @@
 
 import { getSecondPiece, getViruses } from "./functions.js";
 import { SpiningVirus } from "./SpiningVirus.js";
+import Counters from "./scores.js"
 export default class Board {
   static table = [];
   static elements;
@@ -31,7 +32,7 @@ export default class Board {
         Board.table[i].push(" ");
       }
     }
-    const viruses = getViruses(3);
+    const viruses = getViruses(5);
     Board.viruses.push(...viruses);
     Board.elements = document.querySelectorAll(".element");
     viruses.forEach((virus) => {
@@ -42,9 +43,13 @@ export default class Board {
     spiningViruses.forEach((spiningVirus) => { 
       let color = spiningVirus.id.substr(spiningVirus.id.length - 2);
       const virus = new SpiningVirus(spiningVirus, color);
-      virus.animationInterval = setInterval(virus.animation ,  300)
-      SpiningVirus.all.push(virus);
+      virus.animationInterval = setInterval(virus.animation ,  250)
+      SpiningVirus.all[color] = virus;
     });
+
+    Counters.refreshTopScore()
+    Counters.refreshCurrentScore()
+    Counters.refreshVirusScore()
   }
 
   static getConstansAddPixa(pixa) {

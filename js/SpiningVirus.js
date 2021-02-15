@@ -4,7 +4,11 @@ import Board from "./Board.js";
 import Game from "./Main.js";
 
 export class SpiningVirus {
-  static all = [];
+  static all = {
+    yl: null,
+    bl: null,
+    br: null,
+  };
   static circleAnimationInterval;
   static counterFrames = 0;
   constructor(element, color) {
@@ -13,25 +17,33 @@ export class SpiningVirus {
     this.frame = 1;
     this.animationInterval = 0;
     this.lives = true;
+
   }
 
   animation = () => {
-    if (Game.result === "during" && Board.countOfViruses[this.color] !== 0) {
+    if (Game.result === "during" && Board.countOfViruses[this.color] !== 0 && this.lives === true) {
       this.frame = this.frame > 4 ? 1 : this.frame;
       this.element.style.backgroundImage = `url(../img/lupa/${this.color}/${this.frame}.png)`;
       this.frame++;
-    } else if (Game.result === "loss" && Board.countOfViruses[this.color] !== 0) {
+    } else if (Game.result === "loss" && Board.countOfViruses[this.color] !== 0 && this.lives === true) {
       this.frame = this.frame > 4 ? 2 : this.frame;
       this.element.style.backgroundImage = `url(../img/lupa/${this.color}/${this.frame}.png)`;
       this.frame += 2;
-    } else if (Board.countOfViruses[this.color] === 0 && this.lives === true) {
+    } else if (this.lives === false) {
       this.frame = this.frame > 2 ? 1 : this.frame;
       this.element.style.backgroundImage = `url(../img/lupa/${this.color}/${this.frame}_dead.png)`;
       this.frame += 1;
-      setTimeout(() => {
-        this.lives = false;
-        this.element.style.backgroundImage = `url()`;
-      }, 1500);
+      if (Board.countOfViruses[this.color] === 0) {
+        setTimeout(() => {
+          clearInterval(this.animationInterval)
+          this.element.style.backgroundImage = `url()`;
+        }, 1500);
+      }
+      else if(Board.countOfViruses[this.color] > 0){
+        setTimeout(() => {
+          this.lives = true
+        }, 1500);
+      }
     }
   };
 
@@ -46,7 +58,7 @@ SpiningVirus.circleAnimationInterval = setInterval(async function () {
   SpiningVirus.counterFrames = SpiningVirus.counterFrames >= virusesFrames.length ? 0 : SpiningVirus.counterFrames;
   await animateViruses(SpiningVirus.counterFrames);
   SpiningVirus.counterFrames++;
-}, 600);
+}, 1000);
 
 async function animateViruses(counter) {
   return new Promise((resolve) => {

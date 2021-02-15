@@ -82,12 +82,49 @@ body {
   background-size: cover;
 }
 
-#virus_bl {
-  background-image: url(../img/lupa/bl/1.png);
+#virus_br {
+  top: 40px;
+  left: 30px;
+  background-image: url(../img/lupa/br/1.png);
 }
 #virus_yl {
+  top: 120px;
+  left: 60px;
   background-image: url(../img/lupa/yl/1.png);
 }
-#virus_br {
-  background-image: url(../img/lupa/br/1.png);
+#virus_bl {
+  top: 60px;
+  left: 105px;
+  background-image: url(../img/lupa/bl/1.png);
+}
+#topScore,
+#currentScore {
+  display: flex;
+  width: calc(16px * 7);
+  height: 16px;
+  position: absolute;
+  top: calc(16px * 5);
+  left: calc(16px * 5);
+}
+.topScore_element,
+.currentScore_element,
+.virusScore_element {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0px;
+  border: 0px;
+}
+
+#currentScore {
+  top: calc(16px * 8);
+}
+
+#virusCounter {
+  display: flex;
+  width: calc(16px * 2);
+  height: 16px;
+  position: absolute;
+  bottom: calc(16px * 2);
+  right: calc(16px * 3);
 }
