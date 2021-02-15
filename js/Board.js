@@ -33,6 +33,9 @@ export default class Board {
         Board.table[i].push(" ");
       }
     }
+    Board.table[5][5] = 0;
+    Board.table[4][5] = 0;
+
     const viruses = getViruses(5 * Game.level);
     Board.viruses.push(...viruses);
     Board.elements = document.querySelectorAll(".element");
@@ -51,7 +54,7 @@ export default class Board {
     Counters.refreshTopScore();
     Counters.refreshCurrentScore();
     Counters.refreshVirusScore();
-    Counters.refreshLevelScore()
+    Counters.refreshLevelScore();
   }
 
   static clearBoard() {

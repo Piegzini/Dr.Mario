@@ -71,7 +71,7 @@ export default class Game {
     pieces.forEach((piece) => {
       results.push(Game.getMatchingToKillElements(piece));
     });
-
+    console.log(results);
     results.forEach((part) => {
       for (let attr in part) {
         if (part[attr].length >= 4 && attr !== "color") {

@@ -110,7 +110,11 @@ export class Pixa {
       Board.pixaInsert(this);
     } else {
       clearInterval(Game.intervalMove);
-      if (this.second_piece_y <= 6 && this.first_piece_y <= 6) {
+      const first_piece = new Piece(this.id, this.first_piece_y, this.first_piece_x, this.firstColor, this.position);
+      const second_piece = new Piece(this.id, this.second_piece_y, this.second_piece_x, this.secondColor, this.position);
+
+      if (this.second_piece_y <= 6 && this.first_piece_y <= 6 && Game.isKill([first_piece, second_piece]) === false) {
+        console.log(Game.isKill([first_piece, second_piece]))
         const currentGame = Game.all[Game.all.length - 1];
         currentGame.lossMario.style.opacity = 1;
         currentGame.lossBanner.style.opacity = 1;
@@ -123,8 +127,7 @@ export class Pixa {
         clearInterval(SpiningVirus.circleAnimationInterval);
       } else {
         //Towrze sobie nowe obiekty klasy piece, aby wrzycić je do tabeli odzwierciedlającej plansze gry
-        const first_piece = new Piece(this.id, this.first_piece_y, this.first_piece_x, this.firstColor, this.position);
-        const second_piece = new Piece(this.id, this.second_piece_y, this.second_piece_x, this.secondColor, this.position);
+        
         Board.pixaPush(first_piece, second_piece);
         Board.pixaInsert(this);
 
